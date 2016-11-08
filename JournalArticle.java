@@ -128,7 +128,7 @@ private String[] authors;
 private int publicationyear;
 
 public static void main(String[] args) {
-	JournalArticle red= new JournalArticle("the sheep lays down to sleep", "Carbonez, David", "little kid journal", 47, 1997);
+	JournalArticle red= new JournalArticle("try try try ", "Carbonez, David", "little kid journal", 47, 1997);
 	String blue= "the cow jumps over the moon";
 	String[] blues= blue.split(" ");
 	blues[1]= blues[1].substring(0,1).toUpperCase() + blues[1].substring(1);
