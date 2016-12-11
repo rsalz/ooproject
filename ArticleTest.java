@@ -1,10 +1,12 @@
+package assignment1;
+
 import static org.junit.Assert.*;
 
-import java.util.Arrays;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 
 public class ArticleTest {
 
@@ -25,10 +27,11 @@ public class ArticleTest {
 		}
 	
 
-	//@Test
-	//public void test3() {
-	//	assertArrayEquals("P. Fazelli", "M. Horowitz", "O. MacDougald"}, article1.getAuthorNames();
-	//}
+	@Test
+	public void test3() {
+		String[] authorNamesTest= {"P. Fazelli", "M. Horowitz", "O. MacDougald"};
+		assertArrayEquals(authorNamesTest, article1.getAuthorNames());
+	}
 	
 	@Test
 	public void test4() {
@@ -37,7 +40,8 @@ public class ArticleTest {
 	
 	@Test
 	public void test2() {
-		assertEquals("Marrow Fat And Bone: New Perspectives", article1.getCapitalizedTitle());
+		article1.setCapitalizedTitle();
+		assertEquals("Marrow Fat And Bone: New Perspectives", article1.getTitle());
 	}
 	
 	@Test
@@ -55,10 +59,11 @@ public class ArticleTest {
 		assertEquals(2013, article1.getYear());
 	}
 	
-	//@Test
-	//public void test8() {
-	//	assertEquals("False", article1.IsOlderThan());
-	//}
+	@Test
+	public void test8() {
+		boolean isOlderTest= false;
+		assertEquals(isOlderTest, article1.isOlderThan());
+	}
 
 	
 	
