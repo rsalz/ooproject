@@ -1,10 +1,13 @@
 package assignment1;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Database {
 	
-	public void addArticle() {
-		Article article1 = new Article(String title, String[] authors, String journal, int issue, int year, String[] cites, String[] citedBy)
-		/*TODO*/ //should probably be done with the unique identifier		
+	public void addArticle(Article article) {
+		List<Article> database= new ArrayList<>();
+		database.add(article);		
 	}
 	
 	public Article[] findBibliography() {

@@ -18,6 +18,7 @@ import java.util.Calendar;
  *			- Every author must have a first and a last name, separated by a comma
  *			- The name of the journal should contain at least one character
  *			- The issue number should be larger than 0
+ *			- A journal article must cite at least 1 other journal article
  */
 public class Article {
 
@@ -44,15 +45,17 @@ public class Article {
 	private String journal;
 	private int issue;
 	private int year;
-	private String[] cites;
-	private String[] citedby;
-	public Article(String title, String[] authors, String journal, int issue, int year, String[] cites, String[] citedBy)
+	private Article[] cites;
+	private Article[] citedby;
+	//overload constructor to allow for no citations? or maybe smart to initialize blank Article[]s
+	public Article(String title, String[] authors, String journal, int issue, int year, Article[] cites, Article[] citedBy)
 			throws IllegalArgumentException {
-		if (!isValidAuthor(authors))
-			throw new IllegalArgumentException();
+		//if (!isValidAuthor(authors))
+			//throw new IllegalArgumentException();
 		/*TODO*/ //add authors to illegalArgumentException (between parenthesis) 
 		setTitle(title);
-		this.authors = authors;
+		//this.getAuthors();
+		this.authors= authors;
 
 		assert(journal.length()>0);
 		this.journal = journal;
@@ -68,19 +71,19 @@ public class Article {
 		this.citedby = citedBy;
 	}
 	
-	public String[] getCites() {
+	public Article[] getCites() {
 		return cites;
 	}
 	
-	public void setCites(String[] cites) {
+	public void setCites(Article[] cites) {
 		this.cites = cites;
 	}
 	
-	public String[] getCitedby() {
+	public Article[] getCitedby() {
 		return citedby;
 	}
 
-	public void setCitedby(String[] citedby) {
+	public void setCitedby(Article[] citedby) {
 		this.citedby = citedby;
 	}
 
@@ -106,10 +109,13 @@ public class Article {
 		this.title= title;
 	}
 
-	public static boolean isValidAuthor(String[] authors) {
-		boolean checkAuthor = false;
-		for(String author: authors){			 
-			checkAuthor =  (author.contains(", ") && author.length()>0);
+	public static boolean isValidAuthor(Article article) {
+		boolean checkAuthor= false;
+		String[] authors= article.authors;
+		for(int i=0; i<authors.length; i++){
+			System.out.println(authors[i]);
+			checkAuthor = (authors[i].contains(", ") && authors[i].length()>0);
+			System.out.println(checkAuthor);
 		}
 		return checkAuthor;
 	}
@@ -117,7 +123,7 @@ public class Article {
 
 	/**
 	 * basic, immutable
-	 * Inpector that returns the authors of the article
+	 * Inspector that returns the authors of the article
 	 * @return authors of article
 	 */
 	public String[] getAuthors() {
@@ -178,15 +184,16 @@ public class Article {
 	 * this inspector returns the names of the authors as "F. Last"
 	 * @return array authors names in new format "F. Last"
 	 */
-	public String[] getAuthorNames() {
-		for (int i = 0; i<authors.length; i++) { //iterate through list of names (Last, First)
-			String[] authorname= authors[i].split(", "); //split first and last names
+	public String[] convertAuthorNames() {
+		String[] authorsCopy= authors;
+		for (int i = 0; i<authorsCopy.length; i++) { //iterate through list of names (Last, First)
+			String[] authorname= authorsCopy[i].split(", "); //split first and last names
 			String firstname= authorname[1];
 			String lastname= authorname[0];
-			authors[i]= firstname.charAt(0) + ". " + lastname; //convert name to new format (F. Last)
+			authorsCopy[i]= firstname.charAt(0) + ". " + lastname; //convert name to new format (F. Last)
 
 		}
-		return authors;
+		return authorsCopy;
 	}
 
 	/** 
@@ -225,16 +232,21 @@ public class Article {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-
-		Article article1 = new Article("Marrow fat and bone: new perspectives", new String[] {"Fazelli, Patrick", "Horowitz, Mark", "MacDougald, Ornella"}, "Journal of Clinical Endocrinology and Metabolism", 3, 2013);
+		Article[] cites = null;
+		Article[] citedBy = null;
+		String[] authorz= new String[] {"Fazelli, Patrick", "Horowitz, Mark", "MacDougald, Ornella"};
+		Article article1 = new Article("Marrow fat and bone: new perspectives", authorz, "Journal of Clinical Endocrinology and Metabolism", 3, 2013, cites, citedBy);
 		article1.setCapitalizedTitle();
 		System.out.println("The title of the article is: " + article1.getTitle());
-		System.out.println("The authors of the aricle are: " + Arrays.toString(article1.getAuthorNames()));
+		System.out.println("The authors of the aricle are: " + article1.authors);//this won't work gotta update getauthors() with a for loop to print everything individually
+		//Arrays.toString(article1.convertAuthorNames()));
+		System.out.println("But the old author format is conserved. The authors are:" + article1.getAuthors());
 		System.out.println("The number of authors is: " + article1.getNumberOfAuthors());
 		System.out.println("The journal is: " + article1.getJournal());
 		System.out.println("The journal issue is: " + article1.getIssue());
 		System.out.println("The publication year is: " + article1.getYear());
 		System.out.println("The publication is older than 10 years: "+ article1.isOlderThan());
+		isValidAuthor(article1);
 	}
 
 
