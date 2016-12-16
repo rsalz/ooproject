@@ -40,21 +40,23 @@ public class Article {
 	 * @param citedBy
 	 * 		  The articles that cite this article
 	 */
-	private String title;
-	private String[] authors;
-	private String journal;
-	private int issue;
-	private int year;
-	private Article[] cites;
-	private Article[] citedby;
+	String title;
+	String[] authors;
+	String journal;
+	String ID;
+	int issue;
+	int year;
+	Article[] cites;
+	Article[] citedby;
 	//overload constructor to allow for no citations? or maybe smart to initialize blank Article[]s
-	public Article(String title, String[] authors, String journal, int issue, int year, Article[] cites, Article[] citedBy)
+	public Article(String ID, String title, String[] authors, String journal, int issue, int year, Article[] cites, Article[] citedBy)
 			throws IllegalArgumentException {
-		//if (!isValidAuthor(authors))
+		//if (!isValidAuthor(authors)) //i think this segment should maybe be moved outside of the definition?
 			//throw new IllegalArgumentException();
 		/*TODO*/ //add authors to illegalArgumentException (between parenthesis) 
 		setTitle(title);
 		//this.getAuthors();
+		setID(ID);
 		this.authors= authors;
 
 		assert(journal.length()>0);
@@ -71,6 +73,16 @@ public class Article {
 		this.citedby = citedBy;
 	}
 	
+	//should there also be a way to "generateID" with first 3 letters of author, title and year?
+	
+	private void setID(String ID) {
+		this.ID= ID;
+	}
+	
+	public String getID(){
+		return ID;
+	}
+
 	public Article[] getCites() {
 		return cites;
 	}
@@ -113,9 +125,7 @@ public class Article {
 		boolean checkAuthor= false;
 		String[] authors= article.authors;
 		for(int i=0; i<authors.length; i++){
-			System.out.println(authors[i]);
 			checkAuthor = (authors[i].contains(", ") && authors[i].length()>0);
-			System.out.println(checkAuthor);
 		}
 		return checkAuthor;
 	}
@@ -235,18 +245,18 @@ public class Article {
 		Article[] cites = null;
 		Article[] citedBy = null;
 		String[] authorz= new String[] {"Fazelli, Patrick", "Horowitz, Mark", "MacDougald, Ornella"};
-		Article article1 = new Article("Marrow fat and bone: new perspectives", authorz, "Journal of Clinical Endocrinology and Metabolism", 3, 2013, cites, citedBy);
+		Article article1 = new Article("FAZMARR2013","Marrow fat and bone: new perspectives", authorz, "Journal of Clinical Endocrinology and Metabolism", 3, 2013, cites, citedBy);
 		article1.setCapitalizedTitle();
+		System.out.println(isValidAuthor(article1));
 		System.out.println("The title of the article is: " + article1.getTitle());
-		System.out.println("The authors of the aricle are: " + article1.authors);//this won't work gotta update getauthors() with a for loop to print everything individually
-		//Arrays.toString(article1.convertAuthorNames()));
+		System.out.println("The authors of the aricle are: " + Arrays.toString(article1.convertAuthorNames()));//this won't work gotta update getauthors() with a for loop to print everything individually
 		System.out.println("But the old author format is conserved. The authors are:" + article1.getAuthors());
 		System.out.println("The number of authors is: " + article1.getNumberOfAuthors());
 		System.out.println("The journal is: " + article1.getJournal());
 		System.out.println("The journal issue is: " + article1.getIssue());
 		System.out.println("The publication year is: " + article1.getYear());
 		System.out.println("The publication is older than 10 years: "+ article1.isOlderThan());
-		isValidAuthor(article1);
+
 	}
 
 
