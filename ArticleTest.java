@@ -16,7 +16,7 @@ public class ArticleTest {
 
 	@Before
 	public void setUp() throws Exception {
-		article1 = new Article("FAZMARR2013","Marrow fat and bone: new perspectives", new String[] {"Fazelli, Patrick", "Horowitz, Mark", "MacDougald, Ornella"}, "Journal of Clinical Endocrinology and Metabolism", 3, 2013, cites, citedby);
+		article1 = new Article("Marrow fat and bone: new perspectives", new String[] {"Fazelli, Patrick", "Horowitz, Mark", "MacDougald, Ornella"}, "Journal of Clinical Endocrinology and Metabolism", 3, 2013, cites, citedby);
 	}
 
 	@After

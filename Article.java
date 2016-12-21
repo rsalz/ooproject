@@ -19,6 +19,7 @@ import java.util.Calendar;
  *			- The name of the journal should contain at least one character
  *			- The issue number should be larger than 0
  *			- A journal article must cite at least 1 other journal article
+ *			- An ID must be unique
  */
 public class Article {
 
@@ -31,6 +32,8 @@ public class Article {
 	 * 		  The author(s), "Lastname, Firstname" format in an array
 	 * @param journal
 	 * 		  The name of the journal the article was published in
+	 * @param ID
+	 * 		  A unique identifier for an article 
 	 * @param issue
 	 * 		  The issue number of the journal
 	 * @param year 
@@ -40,47 +43,43 @@ public class Article {
 	 * @param citedBy
 	 * 		  The articles that cite this article
 	 */
-	String title;
-	String[] authors;
-	String journal;
-	String ID;
-	int issue;
-	int year;
-	Article[] cites;
-	Article[] citedby;
+	private String title;
+	private String[] authors;
+	private String journal;
+	private int issue;
+	private int year;
+	private String ID;
+	private Article[] cites;
+	private Article[] citedby;
 	//overload constructor to allow for no citations? or maybe smart to initialize blank Article[]s
-	public Article(String ID, String title, String[] authors, String journal, int issue, int year, Article[] cites, Article[] citedBy)
+	public Article(String title, String[] authors, String journal, int issue, int year, Article[] cites, Article[] citedBy)
 			throws IllegalArgumentException {
-		//if (!isValidAuthor(authors)) //i think this segment should maybe be moved outside of the definition?
-			//throw new IllegalArgumentException();
-		/*TODO*/ //add authors to illegalArgumentException (between parenthesis) 
-		setTitle(title);
-		//this.getAuthors();
-		setID(ID);
-		this.authors= authors;
-
+		if (!hasAuthor(authors))
+			throw new IllegalArgumentException();
+		else
+		for (String auth : authors) {
+			if (!isValidAuthor(auth))
+				throw new IllegalArgumentException();
+		}
+		this.title = title;
+		this.authors = authors;
 		assert(journal.length()>0);
-		this.journal = journal;
-
+		this.journal = journal;		
 		assert(issue>0);
-		this.issue = issue;
-
-		assert(year<2017);
+		this.issue = issue;		
 		this.year = year;
-
 		this.cites = cites;
-
 		this.citedby = citedBy;
+		
 	}
 	
-	//should there also be a way to "generateID" with first 3 letters of author, title and year?
-	
-	private void setID(String ID) {
-		this.ID= ID;
+
+	private final void setID() {
+		this.ID= this.authors[0].substring(0, 3).toUpperCase() + this.title.substring(0, 3).toUpperCase() + this.year;
 	}
 	
 	public String getID(){
-		return ID;
+		return this.ID;
 	}
 
 	public Article[] getCites() {
@@ -121,13 +120,16 @@ public class Article {
 		this.title= title;
 	}
 
-	public static boolean isValidAuthor(Article article) {
+	public static boolean isValidAuthor(String author) {
 		boolean checkAuthor= false;
-		String[] authors= article.authors;
-		for(int i=0; i<authors.length; i++){
-			checkAuthor = (authors[i].contains(", ") && authors[i].length()>0);
-		}
+		checkAuthor = (author.contains(", ") && author.length()>0);
 		return checkAuthor;
+		}
+	
+	public static boolean hasAuthor(String[] author) {
+		boolean hasAuthor = false;
+		hasAuthor = author.length>0;
+		return hasAuthor;
 	}
 
 
@@ -140,17 +142,6 @@ public class Article {
 		return this.authors;
 	}
 
-	public void isValidAuthor() {
-
-
-	}
-
-	/*assert(authors.length>0);
-		for(String author: authors){
-			assert(author.contains(", "));			
-				};
-		this.authors = authors;
-	 */
 	/**
 	 * basic, immutable
 	 * Inspector that returns the journal in which the article is published
@@ -195,7 +186,7 @@ public class Article {
 	 * @return array authors names in new format "F. Last"
 	 */
 	public String[] convertAuthorNames() {
-		String[] authorsCopy= authors;
+		String[] authorsCopy= getAuthors().clone();
 		for (int i = 0; i<authorsCopy.length; i++) { //iterate through list of names (Last, First)
 			String[] authorname= authorsCopy[i].split(", "); //split first and last names
 			String firstname= authorname[1];
@@ -242,24 +233,32 @@ public class Article {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		Article[] cites = null;
-		Article[] citedBy = null;
+		Article[] cites = new Article[] {};
+		Article[] citedBy = new Article[] {};
 		String[] authorz= new String[] {"Fazelli, Patrick", "Horowitz, Mark", "MacDougald, Ornella"};
-		Article article1 = new Article("FAZMARR2013","Marrow fat and bone: new perspectives", authorz, "Journal of Clinical Endocrinology and Metabolism", 3, 2013, cites, citedBy);
+		String[] authorz2 = new String[] {"FAuthor1, LAuthor1", "FAuthor2, LAuthor2", "FAuthor3, LAuthor3", "Fauthor4, LAuthor4"};
+		Article article1 = new Article("Marrow fat and bone: new perspectives", authorz, "Journal of Clinical Endocrinology and Metabolism", 3, 2013, cites, citedBy);
+		Article article2 = new Article("Artilce2title", authorz2, "Article2Journal", 12, 2016, cites, citedBy);
 		article1.setCapitalizedTitle();
-		System.out.println(isValidAuthor(article1));
+		article1.setID();
+		article2.setID();
+		System.out.println("The ID of the article is " + article1.getID());
 		System.out.println("The title of the article is: " + article1.getTitle());
+
 		System.out.println("The authors of the aricle are: " + Arrays.toString(article1.convertAuthorNames()));//this won't work gotta update getauthors() with a for loop to print everything individually
-		System.out.println("But the old author format is conserved. The authors are:" + article1.getAuthors());
+		System.out.println("But the old author format is conserved. The authors are:" + Arrays.toString(article1.getAuthors()));
+
+
 		System.out.println("The number of authors is: " + article1.getNumberOfAuthors());
 		System.out.println("The journal is: " + article1.getJournal());
 		System.out.println("The journal issue is: " + article1.getIssue());
 		System.out.println("The publication year is: " + article1.getYear());
 		System.out.println("The publication is older than 10 years: "+ article1.isOlderThan());
-
+		Database database = new Database();
+		database.addArticle(article1);
+		database.addArticle(article2);
+		database.addReference(article1.ID, article2.ID);
+		database.deleteArticle(article2);
 	}
-
-
-
 }
 
