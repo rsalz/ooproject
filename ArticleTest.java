@@ -11,10 +11,12 @@ import org.junit.Test;
 public class ArticleTest {
 
 	private Article article1;
+	private Article[] cites= null;
+	private Article[] citedby=null;
 
 	@Before
 	public void setUp() throws Exception {
-		article1 = new Article("Marrow fat and bone: new perspectives", new String[] {"Fazelli, Patrick", "Horowitz, Mark", "MacDougald, Ornella"}, "Journal of Clinical Endocrinology and Metabolism", 3, 2013);
+		article1 = new Article("Marrow fat and bone: new perspectives", new String[] {"Fazelli, Patrick", "Horowitz, Mark", "MacDougald, Ornella"}, "Journal of Clinical Endocrinology and Metabolism", 3, 2013, cites, citedby);
 	}
 
 	@After
@@ -30,7 +32,7 @@ public class ArticleTest {
 	@Test
 	public void test3() {
 		String[] authorNamesTest= {"P. Fazelli", "M. Horowitz", "O. MacDougald"};
-		assertArrayEquals(authorNamesTest, article1.getAuthorNames());
+		assertArrayEquals(authorNamesTest, article1.getAuthors());
 	}
 	
 	@Test
