@@ -118,7 +118,7 @@ public abstract class Publication {
 	public int getNumberOfAuthors() {
 		return this.authors.length;
 	}
-
+	
 	/**
 	 * basic, immutable
 	 * this inspector returns the names of the authors as "F. Last"
@@ -165,6 +165,9 @@ public abstract class Publication {
 		int currentYear= Calendar.getInstance().get(Calendar.YEAR);
 		return ((currentYear-getYear())>10);
 	}
+	
+	public void printPublication() {
+	}
 
 
 	/**
@@ -172,12 +175,13 @@ public abstract class Publication {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		Article[] cites = new Article[] {};
-		Article[] citedBy = new Article[] {};
+		Publication[] cites = new Publication[] {};
+		Publication[] citedBy = new Publication[] {};
 		String[] authorz= new String[] {"Fazelli, Patrick", "Horowitz, Mark", "MacDougald, Ornella"};
 		String[] authorz2 = new String[] {"FAuthor1, LAuthor1", "FAuthor2, LAuthor2", "FAuthor3, LAuthor3", "Fauthor4, LAuthor4"};
 		Article article1 = new Article("Marrow fat and bone: new perspectives", authorz, 2013, cites, citedBy, "Journal of Clinical Endocrinology and Metabolism", 1);
 		Article article2 = new Article("Artilce2title", authorz2, 2016, cites, citedBy, "Article2Journal", 12);
+		Book book1 = new Book("booktitle", authorz, 2016, cites, citedBy, "publisher");
 		article1.setCapitalizedTitle();
 		System.out.println("The ID of the article is " + article1.getID());
 		System.out.println("The title of the article is: " + article1.getTitle());
@@ -191,11 +195,21 @@ public abstract class Publication {
 		System.out.println("The journal issue is: " + article1.getIssue());
 		System.out.println("The publication year is: " + article1.getYear());
 		System.out.println("The publication is older than 10 years: "+ article1.isOlderThan());
-		Database database = new Database();
-		database.addPublication(article1);
-		database.addPublication(article2);
-		database.addReference(article1.ID, article2.ID);
-		database.deleteArticle(article2);
+		Database database1 = new Database();
+		System.out.println("print ID's");
+		System.out.println(article1.getID());
+		System.out.println(article2.getID());
+		System.out.println(book1.getID());
+		
+		database1.addPublication(article1);
+		database1.addPublication(article2);
+		database1.addPublication(book1);
+		database1.addReference(book1.ID, article1.ID);
+		
+		System.out.println("printed database: ");
+		database1.printDatabase();
+		
+				
 	}
 
 

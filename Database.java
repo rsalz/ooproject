@@ -3,7 +3,9 @@ package assignment1;
 import assignment1.Publication;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 public class Database {
@@ -52,7 +54,7 @@ public class Database {
 		}
 		return index;
 	}
-	
+
 	public Publication[] findKeyword(String word) {
 		List<Publication> keywordList= new ArrayList<>();
 		for (Iterator<Publication> iter= database.listIterator(); iter.hasNext();) {
@@ -73,39 +75,39 @@ public class Database {
 	public void addReference(String citingID, String citedID) {
 		//*TODO*// //remember to throw an error if either of the given IDs are not within the database
 		//create two articles. One that cites, one that is cited by
-		Publication citesA = null;
-		Publication citedA = null;
+		Publication citingPublication = null;
+		Publication citedPublication = null;
 		//retrieve the articles with these IDs by looping through the database. 
 		for (Iterator<Publication> iter= database.listIterator(); iter.hasNext();) {
 			//store the current article as cite
 			Publication cite=iter.next();
 			//if the ID of the current article matches the ID of the article that cites, then the current article is equal to citesA. (should only retrieve one result)
 			if (cite.getID().equals(citingID)) {
-				citesA= cite;
+				citingPublication= cite;
 			}
 			//if the ID of the current article matches the ID of the article that gets cited, then ... (should only retrieve one result)
 			if (cite.getID().equals(citedID)) {
-				citedA= cite;
+				citedPublication= cite;
 			}
 		}
 		//update the cites array of the article that cites another
 		//first store the articles it already cites to a list that contains articles(! this needs to be arraylist, add is not supported in list)
-		List<Publication> citesAA= new ArrayList<Publication>(Arrays.asList(citesA.getCites()));
+		List<Publication> citationsOfCitingPublication = new ArrayList<Publication>(Arrays.asList(citingPublication.getCites()));
 		//add the article that gets cited to that list
-		citesAA.add(citedA);
+		citationsOfCitingPublication.add(citedPublication);
 		//create a new array with the length of that list
-		Publication[] citesAnew= new Publication[citesAA.size()];
+		Publication[] ListCitationsOfCitingPublication= new Publication[citationsOfCitingPublication.size()];
 		//store the list into that array
-		citesAnew=citesAA.toArray(citesAnew);
+		ListCitationsOfCitingPublication=citationsOfCitingPublication.toArray(ListCitationsOfCitingPublication);
 		//update the cited array of the article that gets cited
 		//first store the articles that cited the article already into a list that contains articles
-		List<Publication> citedAA= new ArrayList<Publication>(Arrays.asList(citedA.getCites()));
+		List<Publication> CitedByOfCitedPublication = new ArrayList<Publication>(Arrays.asList(citedPublication.getCites()));
 		//then add the article that cites the article to that list of articles
-		citedAA.add(citesA);
+		CitedByOfCitedPublication.add(citingPublication);
 		//create a new array of articles with the length of that list
-		Publication[] citedAnew= new Publication[citedAA.size()];
+		Publication[] ListCitedByOfCitedPublicatoin= new Publication[CitedByOfCitedPublication.size()];
 		//then store the list into that array of articles
-		citedAnew=citedAA.toArray(citedAnew);
+		ListCitedByOfCitedPublicatoin=CitedByOfCitedPublication.toArray(ListCitedByOfCitedPublicatoin);
 
 		//put them back in the database
 		//iterate through the database of articles
@@ -114,11 +116,11 @@ public class Database {
 			Publication cite2=iter2.next();
 			//if the ID of the current article is equal to the ID of the article that is citing, then update its cites to the new citesAnew array
 			if (cite2.getID().equals(citingID)) {
-				cite2.setCites(citesAnew);
+				cite2.setCites(ListCitationsOfCitingPublication);
 			}
 			//if the ID of the current article is equal to the ID of the article that gets cited, then update its citedBy to the new citedAnew array
 			if (cite2.getID().equals(citedID)) {
-				cite2.setCitedby(citedAnew);
+				cite2.setCitedby(ListCitedByOfCitedPublicatoin);
 			}
 		}
 	}
@@ -165,6 +167,41 @@ public class Database {
 			}
 
 		}
+	}
+	
+	public Publication[] getCitations(Publication publication) {
+		HashSet<Publication> citations= new HashSet<Publication>();
+		//directly and indirectly cited:
+		Publication[] directlyCited= publication.getCitedBy();
+		for (Publication pubby: directlyCited) {
+			citations.add(pubby);
+			Publication[] indirectlyCited= pubby.getCitedBy();
+			for (Publication pubby2: indirectlyCited) {
+				citations.add(pubby2);
+				}
+			}
+		//more distant:
+		//create set in order so things added will go to the end and the iterator will eventually reach them, thus going infinitely until there is nothing left to add
+		LinkedHashSet<Publication> orderedCitations=new LinkedHashSet<Publication>(citations);
+		Iterator<Publication> iter= orderedCitations.iterator();
+		while (iter.hasNext()) {
+			Publication nearpub= iter.next();
+			Publication[] nearpubCite= nearpub.getCitedBy();
+			for (Publication farCite: nearpubCite) {
+				orderedCitations.add(farCite);
+			}
+		}
+		//convert to array
+		Publication[] allCited= orderedCitations.toArray(new Publication[orderedCitations.size()]);
+		return allCited;
+		
+	}
+
+	public void printDatabase() {
+
+		for(Publication a: database) {
+			a.printPublication();
+		}		
 	}
 }
 

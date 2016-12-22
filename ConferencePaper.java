@@ -4,17 +4,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Book extends Publication {
+public class ConferencePaper extends Publication{
 
-	private String publisher;
+	private String conference;
 
-	public Book(String title, String[] authors, int year, Publication[] cites, Publication[] citedBy, String publisher) {
-		super(title, authors, year, 1.2, cites, citedBy);
-		this.publisher=publisher;
+	public ConferencePaper(String title, String[] authors, int year, Publication[] cites, Publication[] citedBy, String conference) {
+		super(title, authors, year, 0.7, cites, citedBy);
+		this.conference=conference;
 	}
 
-	public String getPublisher() {
-		return this.publisher;
+	public String getConference() {
+		return this.conference;
 	}
 
 	@Override
@@ -34,7 +34,7 @@ public class Book extends Publication {
 			}
 
 		}
-		System.out.println("Title: " + this.getTitle() + ", Authors: " + Arrays.toString(this.getAuthors()) + ", Publisher: " + this.getPublisher() + ", Year: " + this.getYear() + ", Cites: " + Arrays.toString(citesIDs.toArray()) + ", Cited By: " + Arrays.toString(citedByIDs.toArray()));
+		System.out.println("Title: " + this.getTitle() + ", Authors: " + Arrays.toString(this.getAuthors()) + ", Conference: " + this.getConference() + ", Year: " + this.getYear() + ", Cites: " + Arrays.toString(citesIDs.toArray()) + ", Cited By: " + Arrays.toString(citedByIDs.toArray()));
 
 	}
 }
