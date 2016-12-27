@@ -205,6 +205,8 @@ public abstract class Publication {
 		database1.addPublication(article2);
 		database1.addPublication(book1);
 		database1.addReference(book1.ID, article1.ID);
+		database1.addReference(article2.ID, article1.ID);
+		database1.deleteArticle(book1);
 		
 		System.out.println("printed database: ");
 		database1.printDatabase();

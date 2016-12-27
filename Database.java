@@ -7,12 +7,20 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.ListIterator;
 
 public class Database {
 	List<Publication> database= new ArrayList<>();
+	
+	//public Database(List<Publication> database) {
+	//	this.setDatabase(database);
+	//}
+
+	//private void setDatabase(List<Publication> database) {
+	//	this.database= database;
+	//}
 
 	public void addPublication(Publication publication) {
-
 		database.add(publication);
 	}
 
@@ -73,7 +81,6 @@ public class Database {
 	}
 
 	public void addReference(String citingID, String citedID) {
-		//*TODO*// //remember to throw an error if either of the given IDs are not within the database
 		//create two articles. One that cites, one that is cited by
 		Publication citingPublication = null;
 		Publication citedPublication = null;
@@ -89,6 +96,10 @@ public class Database {
 			if (cite.getID().equals(citedID)) {
 				citedPublication= cite;
 			}
+		}
+		//throw an error if either of the given IDs are not within the database
+		if (citingPublication==null || citedPublication==null) {
+			throw new IllegalArgumentException();
 		}
 		//update the cites array of the article that cites another
 		//first store the articles it already cites to a list that contains articles(! this needs to be arraylist, add is not supported in list)
@@ -128,45 +139,38 @@ public class Database {
 
 	public void deleteArticle(Publication article) {
 		//iterate through the database of articles
-		for (Iterator<Publication> iter= database.listIterator(); iter.hasNext();) {
+		List<Publication> updatedDB= new ArrayList<Publication>();
+		for (ListIterator<Publication> iter= database.listIterator(); iter.hasNext();) {
 			//store the current article as iterarticle
 			Publication iterarticle= iter.next();
-			//if the current article matches the argument article, delete it from iter /*TODO*/ (Does this also delete it from the database? This should probably also renew the database arraylist)
-			Publication[] iterarticleCited = new Publication[] {};
-			if (iterarticle == article) {
-				//store the articles by which the current article gets cited in an array iterarticleCited
-				iterarticleCited = iterarticle.getCitedBy();
-				iter.remove();
-
-				/*TODO*/ //will delete this block later!
-				//check the number of objects in database & iter to check if article gets removed from database too
-				System.out.println(database.size());
-				int iterations = 0;
-				while (iter.hasNext()) {
-					iter.next();
-					iterations = iterations + 1;
-					System.out.println("length iter" + iterations);
-				}
-				/*TODO*/ //will delete this block later!
-				//loop through all the articles in iterarticleCited ( = all the articles that cite the article we'll delete)
-				List<Publication> iterarticleCitedList = new ArrayList<Publication>(Arrays.asList(iterarticleCited));
-				for (Publication current : iterarticleCitedList) {
-					//convert the array with citations to a list: currentCites
-					List<Publication> currentCites = new ArrayList<Publication>(Arrays.asList(current.getCites()));
-					//loop through the list with citations & remove the article of which its ID is equal to article.ID
-					for (Iterator<Publication> iterArt = currentCites.listIterator(); iterArt.hasNext();) {
-						Publication currentCitation = iterArt.next();
-						//if the ID of the currentArticle equals the ID of the article we want to remove => remove that citation.
-						if (currentCitation.getID() == article.getID()){
-							iterArt.remove();/*TODO*/ //check if this really deletes the citation
-						}
+			List<Publication> citesDelete= new ArrayList<>(Arrays.asList(iterarticle.getCites()));
+			List<Publication> citedByDelete= new ArrayList<>(Arrays.asList(iterarticle.getCitedBy()));
+			if (iterarticle != article) {
+				//iterate through cites and citedBy to remove the article
+				for (ListIterator<Publication> iterCites= citesDelete.listIterator(); iterCites.hasNext();) {
+					Publication citesCheck= iterCites.next();
+					if (citesCheck == article) {
+						iterCites.remove();
 					}
-
 				}
-
-			}
-
+				for (ListIterator<Publication> iterCited= citedByDelete.listIterator(); iterCited.hasNext();) {
+					Publication citedCheck= iterCited.next();
+					if (citedCheck == article) {
+						iterCited.remove();
+					}
+				}
+				//update changes, put back into iterarticle
+				Publication[] citesDeleted= new Publication[citesDelete.size()];
+				citesDeleted=citesDelete.toArray(citesDeleted);
+				Publication[] citedByDeleted= new Publication[citedByDelete.size()];
+				citedByDeleted=citedByDelete.toArray(citedByDeleted);
+				iterarticle.setCites(citesDeleted);
+				iterarticle.setCitedby(citedByDeleted);
+				updatedDB.add(iterarticle);
+			}	
 		}
+		//update changes in database
+		database=updatedDB;
 	}
 	
 	public Publication[] getCitations(Publication publication) {
