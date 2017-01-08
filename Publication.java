@@ -3,8 +3,48 @@ package assignment1;
 import java.util.Arrays;
 import java.util.Calendar;
 
+/**
+ * @author Renee Salz, David Carbonez
+ *	* This class represents a scientific publication using:
+ *			- ID
+ *			- title
+ *			- author(s)
+ *			- //name of the journal it was published in
+ *			- //issue number of the journal
+ *			- year of publication
+ *			- indexweight of the publication
+ *			- the articles it cites
+ *			- the articles it is cited by
+ *
+ *@invar	- A publication must have at least one author
+ *			- Every author must have a first and a last name, separated by a comma
+ *			- //The name of the journal should contain at least one character
+ *			- //The issue number should be larger than 0
+ *			- A publication must cite at least 1 other publication
+ *			- An ID must be unique
+ */
+
 public abstract class Publication {
 	
+	/**
+	 * Initialize this new publication with given ID, title, authors, year, indexWeight, cites & citedby
+	 * 
+	 * @param ID
+	 *  	   A unique identifier for an article 
+	 * @param title
+	 * 		  The title of the publication
+	 * @param authors
+	 * 		  The author(s), "Lastname, Firstname" format in an array
+	 * @param year 
+	 * 		  The year of the publication
+	 * @param indexWeight
+	 * 		  The weight of a publication in the indexcalculation
+	 * @param cites
+	 * 		  The articles cited by this publication
+	 * @param citedBy
+	 * 		  The articles that cite this publication
+	 */
+
 	protected String ID;
 	protected String title;
 	protected String[] authors;
@@ -13,20 +53,23 @@ public abstract class Publication {
 	protected Publication[] cites;
 	protected Publication[] citedBy;
 	
+	
 	public Publication(String title, String[] authors, int year, double indexWeight, Publication[] cites, Publication[] citedBy) throws IllegalArgumentException {
+		this.title=title;
 		if (!hasAuthor(authors))
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("No authors found");
 		else
 		for (String auth : authors) {
 			if (!isValidAuthor(auth))
-				throw new IllegalArgumentException();
+				throw new IllegalArgumentException("Invalid author format");
 		}
-		this.title=title;
 		this.authors = authors;
 		this.year = year;
 		this.cites = cites;
 		this.citedBy = citedBy;
-		this.ID= this.authors[0].substring(0, 3).toUpperCase() + this.title.substring(0, 3).toUpperCase() + this.year;
+		this.ID= this.authors[0].substring(0, 3).toUpperCase() +  this.title.substring(0, 3).toUpperCase() + this.year;
+
+		
 	}
 	
 	public String getID(){
@@ -80,6 +123,7 @@ public abstract class Publication {
 
 	public static boolean isValidAuthor(String author) {
 		boolean checkAuthor= false;
+		//checkAuthor is set to true, only when the length of authors != 0 and when author contains a comma
 		checkAuthor = (author.contains(", ") && author.length()>0);
 		return checkAuthor;
 		}
@@ -175,43 +219,154 @@ public abstract class Publication {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		//define cites & citedBy arrrays (empty for now) /*TODO*/
 		Publication[] cites = new Publication[] {};
 		Publication[] citedBy = new Publication[] {};
+		
+		//define authors /*TODO*/ //make proper authors
 		String[] authorz= new String[] {"Fazelli, Patrick", "Horowitz, Mark", "MacDougald, Ornella"};
 		String[] authorz2 = new String[] {"FAuthor1, LAuthor1", "FAuthor2, LAuthor2", "FAuthor3, LAuthor3", "Fauthor4, LAuthor4"};
+		
+		//define objects (2 articles, 1 book, 1 conferencepaper)
 		Article article1 = new Article("Marrow fat and bone: new perspectives", authorz, 2013, cites, citedBy, "Journal of Clinical Endocrinology and Metabolism", 1);
 		Article article2 = new Article("Artilce2title", authorz2, 2016, cites, citedBy, "Article2Journal", 12);
 		Book book1 = new Book("booktitle", authorz, 2016, cites, citedBy, "publisher");
+		ConferencePaper conferencepaper1 = new ConferencePaper("confpapTitle", authorz2, 2999, cites, citedBy, "conference C");
+		
+		//capitalize all titles
 		article1.setCapitalizedTitle();
+		article2.setCapitalizedTitle();
+		book1.setCapitalizedTitle();
+		conferencepaper1.setCapitalizedTitle();
+		
+		//print out all the characteristics of article 1
 		System.out.println("The ID of the article is " + article1.getID());
 		System.out.println("The title of the article is: " + article1.getTitle());
-
 		System.out.println("The authors of the aricle are: " + Arrays.toString(article1.convertAuthorNames()));//this won't work gotta update getauthors() with a for loop to print everything individually
 		System.out.println("But the old author format is conserved. The authors are:" + Arrays.toString(article1.getAuthors()));
-
-
 		System.out.println("The number of authors is: " + article1.getNumberOfAuthors());
 		System.out.println("The journal is: " + article1.getJournal());
 		System.out.println("The journal issue is: " + article1.getIssue());
 		System.out.println("The publication year is: " + article1.getYear());
 		System.out.println("The publication is older than 10 years: "+ article1.isOlderThan());
+		
+		//create a database object database1
 		Database database1 = new Database();
+		
+		//print the ID's of all the objects
 		System.out.println("print ID's");
 		System.out.println(article1.getID());
 		System.out.println(article2.getID());
 		System.out.println(book1.getID());
+		System.out.println(conferencepaper1.getID());
 		
+		//add artilce 1 to database
 		database1.addPublication(article1);
-		database1.addPublication(article2);
-		database1.addPublication(book1);
-		database1.addReference(book1.ID, article1.ID);
-		database1.addReference(article2.ID, article1.ID);
-		database1.deleteArticle(book1);
 		
-		System.out.println("printed database: ");
+		//print database content
+		System.out.println("article 1");
 		database1.printDatabase();
+		System.out.println();
 		
-				
+		//add article 2 to database
+		database1.addPublication(article2);
+		
+		//print database content
+		System.out.println("article 1 & article 2");
+		database1.printDatabase();
+		System.out.println();
+
+		//add book1 to database
+		database1.addPublication(book1);
+		
+		//print database content
+		System.out.println("article 1 & article 2 & book 1");
+		database1.printDatabase();
+		System.out.println();
+		
+		//add conferencepaper1 to database
+		database1.addPublication(conferencepaper1);
+		
+		//print database content
+		System.out.println("article 1, article 2, book1 & conferencepaper1");
+		database1.printDatabase();
+		System.out.println();
+		
+		//add reference in database1(article 1 cites book 1)
+		database1.addReference(article1.getID(), book1.getID() );
+		
+		//print database content
+		System.out.println("reference article1 cites book1");
+		database1.printDatabase();
+		System.out.println();
+		
+		//add reference in database (article 1 cites article 2)
+		database1.addReference(article1.getID(), article2.getID());
+		
+		//print database content
+		System.out.println("article1 cites article2");
+		database1.printDatabase();
+		System.out.println();
+		
+		//delete article2 from database
+		database1.deleteArticle(article2);
+		
+		//print database content
+		System.out.println("deleted article 2");
+		database1.printDatabase();
+		System.out.println();
+		
+		//delete article1 from database
+		database1.deleteArticle(article1);
+		
+		//print database content
+		System.out.println("deleted article 1");
+		database1.printDatabase();
+		System.out.println();
+		
+		//add reference in database (conferencepaper1 cites book1)
+		database1.addReference(book1.getID(), conferencepaper1.getID());
+		
+		//print database content
+		System.out.println("book1 cites conferencepaper1");
+		database1.printDatabase();
+		System.out.println();
+		
+		//add article 1 to database
+		database1.addPublication(article1);
+		
+		//add article 2 to database
+		database1.addPublication(article2);
+		
+		//article 2 cites article 1
+		database1.addReference(article2.getID(), article1.getID());
+		
+		//print database content
+		System.out.println("article 1 added");
+		database1.printDatabase();
+		System.out.println();
+		
+		//add reference in database (article 1 cites conferencepaper1)
+		database1.addReference(article1.getID(), conferencepaper1.getID());
+
+		//print database content
+		System.out.println("article1 cites conferencepaper1");
+		database1.printDatabase();
+		System.out.println();
+		
+		//article that tries to cite itself, exception is thrown
+		//database1.addReference(article1.getID(),  article1.getID());
+
+		
+		//retrieve citations of book1
+		System.out.println("Get citations confpap");
+		database1.printListOfPublications(database1.getCitations(conferencepaper1));
+		System.out.println();
+		
+		//find biblipgraphy of Fazelli
+		System.out.println("all publications of Fazelli, Patrick");
+		String authorx = "Fazelli, Patrick";
+		database1.findBibliography(authorx);
 	}
 
 

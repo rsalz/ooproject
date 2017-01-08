@@ -11,7 +11,7 @@ import java.util.ListIterator;
 
 public class Database {
 	List<Publication> database= new ArrayList<>();
-	
+
 	//public Database(List<Publication> database) {
 	//	this.setDatabase(database);
 	//}
@@ -51,7 +51,7 @@ public class Database {
 		double index=0;
 		//first find all his publications
 		Publication[] authorPublications= findBibliography(author);
-		//then retreive Publication[] citedBy for all of these
+		//then retrieve Publication[] citedBy for all of these
 		for (Publication publication : authorPublications) {
 			Publication[] cited= publication.getCitedBy();
 			//for each publication, add to the score
@@ -98,10 +98,9 @@ public class Database {
 			}
 		}
 		//throw an error if either of the given IDs are not within the database
-		if (citingPublication==null || citedPublication==null) {
+		if (citingPublication==null || citedPublication==null || citingPublication == citedPublication) {
 			throw new IllegalArgumentException();
 		}
-		//update the cites array of the article that cites another
 		//first store the articles it already cites to a list that contains articles(! this needs to be arraylist, add is not supported in list)
 		List<Publication> citationsOfCitingPublication = new ArrayList<Publication>(Arrays.asList(citingPublication.getCites()));
 		//add the article that gets cited to that list
@@ -110,9 +109,9 @@ public class Database {
 		Publication[] ListCitationsOfCitingPublication= new Publication[citationsOfCitingPublication.size()];
 		//store the list into that array
 		ListCitationsOfCitingPublication=citationsOfCitingPublication.toArray(ListCitationsOfCitingPublication);
-		//update the cited array of the article that gets cited
+		
 		//first store the articles that cited the article already into a list that contains articles
-		List<Publication> CitedByOfCitedPublication = new ArrayList<Publication>(Arrays.asList(citedPublication.getCites()));
+		List<Publication> CitedByOfCitedPublication = new ArrayList<Publication>(Arrays.asList(citedPublication.getCitedBy()));
 		//then add the article that cites the article to that list of articles
 		CitedByOfCitedPublication.add(citingPublication);
 		//create a new array of articles with the length of that list
@@ -143,36 +142,68 @@ public class Database {
 		for (ListIterator<Publication> iter= database.listIterator(); iter.hasNext();) {
 			//store the current article as iterarticle
 			Publication iterarticle= iter.next();
+			//create 2 arraylists with the current cites & citedBy
 			List<Publication> citesDelete= new ArrayList<>(Arrays.asList(iterarticle.getCites()));
 			List<Publication> citedByDelete= new ArrayList<>(Arrays.asList(iterarticle.getCitedBy()));
 			if (iterarticle != article) {
-				//iterate through cites and citedBy to remove the article
+				//iterate through cites of current article
 				for (ListIterator<Publication> iterCites= citesDelete.listIterator(); iterCites.hasNext();) {
 					Publication citesCheck= iterCites.next();
+					//if the cites is equal to the article you want to delete, remove it from the cites
 					if (citesCheck == article) {
 						iterCites.remove();
 					}
 				}
+				//iterate through citedBy of current article
 				for (ListIterator<Publication> iterCited= citedByDelete.listIterator(); iterCited.hasNext();) {
 					Publication citedCheck= iterCited.next();
+					//if the citedBy is equal to the article you want to delete, remove it from the cites
 					if (citedCheck == article) {
 						iterCited.remove();
 					}
 				}
-				//update changes, put back into iterarticle
+				//make an array of publications with the size of the arraylist in which you deleted the cites
 				Publication[] citesDeleted= new Publication[citesDelete.size()];
+				//store the content of the arraylist in the array
 				citesDeleted=citesDelete.toArray(citesDeleted);
+
+				//make an array of publications with the size of the arraylist in which you deleted the citedBy
 				Publication[] citedByDeleted= new Publication[citedByDelete.size()];
+				//store the content of the arraylist in the array
 				citedByDeleted=citedByDelete.toArray(citedByDeleted);
+
+				//assign the new arrays to the current article
 				iterarticle.setCites(citesDeleted);
 				iterarticle.setCitedby(citedByDeleted);
+
+				//add the new article to the database
 				updatedDB.add(iterarticle);
-			}	
+			}
+			//for the article you're deleting, remove all its cites & citedBy's
+			else if (iterarticle == article) {
+				citesDelete.clear();
+				citedByDelete.clear();
+
+				//make an array of publications with the size of the arraylist in which you deleted the cites
+				Publication[] citesDeleted = new Publication[citesDelete.size()];
+				//store the content of the arraylist (nothing) in the array
+				citesDeleted = citesDelete.toArray(citesDeleted);
+
+				//make an array of publications with the size of the arraylist in which you deleted the citedBy
+				Publication[] citedByDeleted= new Publication[citedByDelete.size()];
+				//store the content of the arraylist in the array
+				citedByDeleted=citedByDelete.toArray(citedByDeleted);
+
+				//assign the new arrays to the current article
+				iterarticle.setCites(citesDeleted);
+				iterarticle.setCitedby(citedByDeleted);
+			}
+
 		}
 		//update changes in database
 		database=updatedDB;
 	}
-	
+
 	public Publication[] getCitations(Publication publication) {
 		HashSet<Publication> citations= new HashSet<Publication>();
 		//directly and indirectly cited:
@@ -182,8 +213,8 @@ public class Database {
 			Publication[] indirectlyCited= pubby.getCitedBy();
 			for (Publication pubby2: indirectlyCited) {
 				citations.add(pubby2);
-				}
 			}
+		}
 		//more distant:
 		//create set in order so things added will go to the end and the iterator will eventually reach them, thus going infinitely until there is nothing left to add
 		LinkedHashSet<Publication> orderedCitations=new LinkedHashSet<Publication>(citations);
@@ -198,11 +229,16 @@ public class Database {
 		//convert to array
 		Publication[] allCited= orderedCitations.toArray(new Publication[orderedCitations.size()]);
 		return allCited;
+	}
+	
+	public void printListOfPublications(Publication[] publications) {
+		for(Publication p: publications){
+			p.printPublication();
+		}
 		
 	}
 
 	public void printDatabase() {
-
 		for(Publication a: database) {
 			a.printPublication();
 		}		
