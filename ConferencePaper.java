@@ -5,7 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 
 	/**
-	 *	* This class represents a scientific publication using:
+	 *@author Renee Salz, David Carbonez	
+	 ** This class represents a scientific publication using:
 	 *			- ID
 	 *			- title
 	 *			- author(s)

@@ -42,7 +42,7 @@ public class Article extends Publication{
 	
 
 
-	//overload constructor to allow for no citations? or maybe smart to initialize blank Article[]s
+	//overload constructor to allow for no citations? or maybe smart to initialize blank Article[]s---> those are initialized in the superclass already
 	public Article(String title, String[] authors, int year, Publication[] cites, Publication[] citedBy, String journal, int issue) {
 		super(title, authors, year, 1.0, cites, citedBy);
 		if(!isValidJournal(journal))

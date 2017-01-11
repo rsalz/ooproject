@@ -5,7 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- *	* This class represents a book using:
+ *@author Renee Salz, David Carbonez	
+ ** This class represents a book using:
  *			- ID
  *			- title
  *			- author(s)
@@ -39,7 +40,11 @@ public class Book extends Publication {
 			throw new IllegalArgumentException("Invalid publisher name");
 		this.publisher=publisher;
 	}
-	
+	/**
+	 * basic, immutable
+	 * Inspector that returns the publisher of book
+	 * @return publisher of book
+	 */
 	public String getPublisher() {
 		return this.publisher;
 	}

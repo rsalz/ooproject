@@ -9,22 +9,36 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.ListIterator;
 
+/**
+ * 
+ * @author Renee Salz and David Carbonez
+ * 
+ * This class contains the database, which is a list of publications.
+ *
+ */
+
 public class Database {
 	List<Publication> database= new ArrayList<>();
 
-	//public Database(List<Publication> database) {
-	//	this.setDatabase(database);
-	//}
-
-	//private void setDatabase(List<Publication> database) {
-	//	this.database= database;
-	//}
-
+	/**
+	 * Mutator that adds input publication to database
+	 * @param publication
+	 * 
+	 */
 	public void addPublication(Publication publication) {
 		database.add(publication);
 	}
 
+	/**
+	 * Inspector
+	 * basic 
+	 * @param author must be in the format Last, First
+	 * @return all publications by author
+	 */
 	public Publication[] findBibliography(String author) {
+		if (Publication.isValidAuthor(author)==false) {
+			throw new IllegalArgumentException();
+		}
 		//create new Arraylist which is meant to contain objects of the type Publication
 		List<Publication> authorList= new ArrayList<>();
 		//Loop through the ArrayList database using the listiterator for as long as the iterator iter has a next article object
@@ -47,6 +61,12 @@ public class Database {
 
 	}
 
+	/**
+	 * Inspector
+	 * @param author
+	 * @return weights of all publications in database by author
+	 * @post if author is valid, index > 0
+	 */
 	public double computeIndex(String author) {
 		double index=0;
 		//first find all his publications
@@ -63,6 +83,11 @@ public class Database {
 		return index;
 	}
 
+	/**
+	 * inspector
+	 * @param word
+	 * @return all publications with a title containing that word
+	 */
 	public Publication[] findKeyword(String word) {
 		List<Publication> keywordList= new ArrayList<>();
 		for (Iterator<Publication> iter= database.listIterator(); iter.hasNext();) {
@@ -80,6 +105,12 @@ public class Database {
 		return containsKeywords;
 	}
 
+	/**
+	 * Mutator that adds references to publications in the database
+	 * @param citingID of paper that is to cite
+	 * @param citedID of paper that is to be cited
+	 * @post cannot have the same publication in citing or citedBy more than once
+	 */
 	public void addReference(String citingID, String citedID) {
 		//create two articles. One that cites, one that is cited by
 		Publication citingPublication = null;
@@ -101,8 +132,16 @@ public class Database {
 		if (citingPublication==null || citedPublication==null || citingPublication == citedPublication) {
 			throw new IllegalArgumentException();
 		}
+
 		//first store the articles it already cites to a list that contains articles(! this needs to be arraylist, add is not supported in list)
 		List<Publication> citationsOfCitingPublication = new ArrayList<Publication>(Arrays.asList(citingPublication.getCites()));
+		//invar: make sure cited isn't already in citing (can't cite same thing twice)
+		for (Iterator<Publication> itercite= citationsOfCitingPublication.listIterator(); itercite.hasNext();) {
+			Publication cite=itercite.next();
+			if (cite==citedPublication) {
+				throw new IllegalArgumentException();
+			}
+		}
 		//add the article that gets cited to that list
 		citationsOfCitingPublication.add(citedPublication);
 		//create a new array with the length of that list
@@ -135,7 +174,12 @@ public class Database {
 		}
 	}
 
-
+	/**
+	 * Destructor that explicitly deletes an article from database and cites list of articles that cite it
+	 * @param article to be destroyed
+	 * @pre article must be in database
+	 * @post article no longer in database or any other article citations
+	 */
 	public void deleteArticle(Publication article) {
 		//iterate through the database of articles
 		List<Publication> updatedDB= new ArrayList<Publication>();
@@ -204,6 +248,12 @@ public class Database {
 		database=updatedDB;
 	}
 
+	/**
+	 * Inspector
+	 * @param publication in database
+	 * @return non-empty list of publications directly or indirectly cited by given publication
+	 * 
+	 */
 	public Publication[] getCitations(Publication publication) {
 		HashSet<Publication> citations= new HashSet<Publication>();
 		//directly and indirectly cited:
