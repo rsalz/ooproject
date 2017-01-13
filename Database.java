@@ -14,11 +14,14 @@ import java.util.ListIterator;
  * @author Renee Salz and David Carbonez
  * 
  * This class contains the database, which is a list of publications.
+ * 
+ * @invar	- an ID of a publication in the database must be unique
+ * 
  *
  */
 
 public class Database {
-	List<Publication> database= new ArrayList<>();
+	static List<Publication> database= new ArrayList<>();
 
 	/**
 	 * Mutator that adds input publication to database
@@ -26,18 +29,19 @@ public class Database {
 	 * 
 	 */
 	public void addPublication(Publication publication) {
+		if (existsInDatabase(publication))
+			throw new IllegalArgumentException("The given publication already exists in the database");
 		database.add(publication);
 	}
 
 	/**
 	 * Inspector
-	 * basic 
-	 * @param author must be in the format Last, First
+	 * @param author (must be in the format Last, First)
 	 * @return all publications by author
 	 */
 	public Publication[] findBibliography(String author) {
-		if (Publication.isValidAuthor(author)==false) {
-			throw new IllegalArgumentException();
+		if (isValidAuthorSearch(author)==false) {
+			throw new IllegalArgumentException("The author given is not a valid author");
 		}
 		//create new Arraylist which is meant to contain objects of the type Publication
 		List<Publication> authorList= new ArrayList<>();
@@ -53,21 +57,24 @@ public class Database {
 			}
 		}
 		//Create an array of articles called containsKeywords of the size equal to the length of the authorlist
-		Publication[] containsKeywords= new Publication[authorList.size()];
+		Publication[] bibliography= new Publication[authorList.size()];
 		//convert the authorlist to the containsKeywords array
-		containsKeywords=authorList.toArray(containsKeywords);
+		bibliography=authorList.toArray(bibliography);
 		//return the array with the articles 
-		return containsKeywords;
+		return bibliography;
 
 	}
-
+	
 	/**
 	 * Inspector
 	 * @param author
 	 * @return weights of all publications in database by author
-	 * @post if author is valid, index > 0
+	 * @post if author is valid and has publications that have been cited, index > 0
 	 */
 	public double computeIndex(String author) {
+		if (isValidAuthorSearch(author)==false) {
+			throw new IllegalArgumentException("The author given is not a valid author");
+		}
 		double index=0;
 		//first find all his publications
 		Publication[] authorPublications= findBibliography(author);
@@ -84,8 +91,21 @@ public class Database {
 	}
 
 	/**
+	 * Return a boolean reflecting whether an author is correctly formatted (at least one character and containing a comma)
+	 * @param author
+	 *        The author to be checked
+	 * @return True if and only if the author contains 1 or more characters and contains a comma
+	 */
+	public static boolean isValidAuthorSearch(String author) {
+		boolean checkAuthor= false;
+		checkAuthor = (author.contains(". ") && author.length()>0);
+		return checkAuthor;
+	}
+
+	/**
 	 * inspector
 	 * @param word
+	 * 		  The word that will be sought in the title
 	 * @return all publications with a title containing that word
 	 */
 	public Publication[] findKeyword(String word) {
@@ -130,7 +150,7 @@ public class Database {
 		}
 		//throw an error if either of the given IDs are not within the database
 		if (citingPublication==null || citedPublication==null || citingPublication == citedPublication) {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("Invalid article selection for reference");
 		}
 
 		//first store the articles it already cites to a list that contains articles(! this needs to be arraylist, add is not supported in list)
@@ -148,7 +168,7 @@ public class Database {
 		Publication[] ListCitationsOfCitingPublication= new Publication[citationsOfCitingPublication.size()];
 		//store the list into that array
 		ListCitationsOfCitingPublication=citationsOfCitingPublication.toArray(ListCitationsOfCitingPublication);
-		
+
 		//first store the articles that cited the article already into a list that contains articles
 		List<Publication> CitedByOfCitedPublication = new ArrayList<Publication>(Arrays.asList(citedPublication.getCitedBy()));
 		//then add the article that cites the article to that list of articles
@@ -180,7 +200,9 @@ public class Database {
 	 * @pre article must be in database
 	 * @post article no longer in database or any other article citations
 	 */
-	public void deleteArticle(Publication article) {
+	public void deletePublication(Publication publication) {
+		if (!existsInDatabase(publication))
+			throw new IllegalArgumentException("The given publication already exists in the database");
 		//iterate through the database of articles
 		List<Publication> updatedDB= new ArrayList<Publication>();
 		for (ListIterator<Publication> iter= database.listIterator(); iter.hasNext();) {
@@ -189,12 +211,12 @@ public class Database {
 			//create 2 arraylists with the current cites & citedBy
 			List<Publication> citesDelete= new ArrayList<>(Arrays.asList(iterarticle.getCites()));
 			List<Publication> citedByDelete= new ArrayList<>(Arrays.asList(iterarticle.getCitedBy()));
-			if (iterarticle != article) {
+			if (iterarticle != publication) {
 				//iterate through cites of current article
 				for (ListIterator<Publication> iterCites= citesDelete.listIterator(); iterCites.hasNext();) {
 					Publication citesCheck= iterCites.next();
 					//if the cites is equal to the article you want to delete, remove it from the cites
-					if (citesCheck == article) {
+					if (citesCheck == publication) {
 						iterCites.remove();
 					}
 				}
@@ -202,7 +224,7 @@ public class Database {
 				for (ListIterator<Publication> iterCited= citedByDelete.listIterator(); iterCited.hasNext();) {
 					Publication citedCheck= iterCited.next();
 					//if the citedBy is equal to the article you want to delete, remove it from the cites
-					if (citedCheck == article) {
+					if (citedCheck == publication) {
 						iterCited.remove();
 					}
 				}
@@ -224,7 +246,7 @@ public class Database {
 				updatedDB.add(iterarticle);
 			}
 			//for the article you're deleting, remove all its cites & citedBy's
-			else if (iterarticle == article) {
+			else if (iterarticle == publication) {
 				citesDelete.clear();
 				citedByDelete.clear();
 
@@ -247,9 +269,29 @@ public class Database {
 		//update changes in database
 		database=updatedDB;
 	}
+	/**
+	 * Return a boolean reflecting whether the given publication exists in the database
+	 * @param publication
+	 * 		  The publication to be checked
+	 * @return True if and only if the publication is already present in the database
+	 */
+	public static boolean existsInDatabase(Publication publication){
+		boolean isInDatabase = false;
+		List<String> IDsInDatabase = new ArrayList<>();
+		for(Publication p: database) {
+			String ID = p.getID();
+			IDsInDatabase.add(ID);
+		}
+		if (IDsInDatabase.contains(publication.getID())) {
+			isInDatabase = true;
+		}
+		return isInDatabase;
+	}
+
 
 	/**
 	 * Inspector
+	 * basic
 	 * @param publication in database
 	 * @return non-empty list of publications directly or indirectly cited by given publication
 	 * 
@@ -280,14 +322,21 @@ public class Database {
 		Publication[] allCited= orderedCitations.toArray(new Publication[orderedCitations.size()]);
 		return allCited;
 	}
-	
+
+	/**
+	 * Method that allows a list of publications to be printed with all their corresponding attributes 
+	 * @param publications
+	 */
 	public void printListOfPublications(Publication[] publications) {
 		for(Publication p: publications){
 			p.printPublication();
 		}
-		
+
 	}
 
+	/**
+	 * Method that prints all the publications in the database
+	 */
 	public void printDatabase() {
 		for(Publication a: database) {
 			a.printPublication();

@@ -19,8 +19,6 @@ import java.util.List;
  *@invar	- A publication must have at least one author
  *			- The name of the publisher should contain at least one character
  *			- Every author must have a first and a last name, separated by a comma
- *			- A publication must cite at least 1 other publication
- *			- An ID must be unique
  */
 
 public class Book extends Publication {
@@ -49,13 +47,31 @@ public class Book extends Publication {
 		return this.publisher;
 	}
 	
+	/**
+	 * Return a boolean reflecting whether the given pupblishername is a valid publishername
+	 * @param publisher
+	 * 		  The publishername to check
+	 * @return True if and only if the name of the publisher contains 1 or more characters
+	 */
 	public static boolean isValidPublisher(String publisher) {
 		boolean checkPublisher = false;
-		//checkJournal will only be set to true if publisher contains at least one letter
 		checkPublisher = publisher.length()>0;
 		return checkPublisher;
 	}
+	
+	/**
+	 * basic, immutable
+	 * returns the indexweight
+	 * @return indexweight
+	 */
+	@Override
+	public double getIndexWeight() {
+		return 1.2;
+	}
 
+	/**
+	 * Method that allows to print a publication as a sequence of its attributes
+	 */
 	@Override
 	public void printPublication() {
 		List<String> citesIDs = new ArrayList<String>();
@@ -68,7 +84,7 @@ public class Book extends Publication {
 		for (Publication c: citedByPublications) {
 			citedByIDs.add(c.getID());
 		}
-		System.out.println("Title: " + this.getTitle() + ", Authors: " + Arrays.toString(this.getAuthors()) + ", Publisher: " + this.getPublisher() + ", Year: " + this.getYear() + ", Cites: " + Arrays.toString(citesIDs.toArray()) + ", Cited By: " + Arrays.toString(citedByIDs.toArray()));
+		System.out.println("ID: " + this.getID() + ", Title: " + this.getTitle() + ", Authors: " + Arrays.toString(this.convertAuthorNames()) + ", Publisher: " + this.getPublisher() + ", Year: " + this.getYear() + ", Cites: " + Arrays.toString(citesIDs.toArray()) + ", Cited By: " + Arrays.toString(citedByIDs.toArray()));
 
 	}
 }

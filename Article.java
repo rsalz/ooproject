@@ -21,12 +21,10 @@ import java.util.List;
  *			- Every author must have a first and a last name, separated by a comma
  *			- The name of the journal should contain at least one character
  *			- The issue number should be larger than 0
- *			- A publication must cite at least 1 other publication
- *			- An ID must be unique
  */
 
 public class Article extends Publication{
-	
+
 	/**
 	 * Initialize this new article with parameters of superclass and given journal and issue number
 	 * 
@@ -36,13 +34,12 @@ public class Article extends Publication{
 	 * 		  The issue number of the journal in which the article was published
 
 	 */
-	
+
 	private String journal;
 	private int issue;
-	
 
 
-	//overload constructor to allow for no citations? or maybe smart to initialize blank Article[]s---> those are initialized in the superclass already
+
 	public Article(String title, String[] authors, int year, Publication[] cites, Publication[] citedBy, String journal, int issue) {
 		super(title, authors, year, 1.0, cites, citedBy);
 		if(!isValidJournal(journal))
@@ -72,21 +69,44 @@ public class Article extends Publication{
 	public int getIssue() {
 		return this.issue;
 	}
-	
+
+	/**
+	 * Return a boolean reflecting whether the given journalname title is a valid title 
+	 * @param journal
+	 * 		  The journalname to check
+	 * @return True if and only if the name of the journal contains 1 or more characters
+	 */
 	public static boolean isValidJournal(String journal) {
 		boolean checkJournal = false;
-		//checkJournal will only be set to true if journalname contains at least one letter
 		checkJournal = journal.length()>0;
 		return checkJournal;
 	}
-	
+
+	/**
+	 * Return a boolean reflecting whether the given issuenumber is a valid issuenumber
+	 * @param issue
+	 * 		  The issuenumber to check
+	 * @return True if and only if the issue number is larger than 0
+	 */
 	public static boolean isValidIssueNumber(int issue) {
 		boolean checkIssue = false;
-		//checkIssue will only be set to true if issue is > 0
 		checkIssue = issue>0;
 		return checkIssue;
 	}
 
+	/**
+	 * basic, immutable
+	 * returns the indexweight
+	 * @return indexweight
+	 */
+	@Override
+	public double getIndexWeight() {
+		return 1;
+	}
+
+	/**
+	 * Method that allows to print a publication as a sequence of its attributes
+	 */
 	@Override
 	public void printPublication() {
 		List<String> citesIDs = new ArrayList<String>();
@@ -99,9 +119,6 @@ public class Article extends Publication{
 		for (Publication c: citedByPublications) {
 			citedByIDs.add(c.getID());
 		}
-		System.out.println("Title: " + this.getTitle() + ", Authors: " + Arrays.toString(this.getAuthors()) + ", Journal: " + this.getJournal() + ", Issue: " + this.getIssue() + ", Year: " + this.getYear() + ", Cites: " + Arrays.toString(citesIDs.toArray())+ ", Cited By: " + Arrays.toString(citedByIDs.toArray()));
-
-
-
+		System.out.println("ID: " + this.getID() + ", Title: " + this.getTitle() + ", Authors: " + Arrays.toString(this.convertAuthorNames()) + ", Journal: " + this.getJournal() + ", Issue: " + this.getIssue() + ", Year: " + this.getYear() + ", Cites: " + Arrays.toString(citesIDs.toArray())+ ", Cited By: " + Arrays.toString(citedByIDs.toArray()));
 	}
 }
